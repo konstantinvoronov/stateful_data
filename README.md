@@ -66,7 +66,7 @@ name = name.toLoading();
 name = Dirty('John (cached)',kind: const CachedDirty(),).toLoading();
 
 // Got result from backend:
-name = Ready<String, AppError>('John');
+name = Ready('John');
 
 // User edits the value locally:
 name = name.toDirty('Jon'); // EditedDirty by default
@@ -84,7 +84,7 @@ name = name.toDirty('Jonathan',kind: const ValidatedDirty(),);
 name = name.toUpdating('Jonathan');
 
 // Server accepts → mark as ready:
-name = Ready<String, AppError>('Jonathan');
+name = Ready('Jonathan');
 
 // If a network error happens:
 name = name.toFailure(const StateError('Network error, please try again'),);
@@ -135,11 +135,6 @@ final class Updating<T, E extends Object>      extends StatefulData<T, E> { /* .
 final class Failure<T, E extends Object>       extends StatefulData<T, E> { /* ... */ }
 final class Dirty<T, E extends Object>         extends StatefulData<T, E> { /* ... */ }
 ```
-
----
-
-
----
 
 ## 🧩 `Dirty` and extensible `DirtyKind`
 
@@ -206,7 +201,6 @@ class NetworkError extends AppError {
   const NetworkError(String message) : super(message);
 }
 ```
-
 
 
 ## 🧭 How to use it across layers
