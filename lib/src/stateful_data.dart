@@ -8,7 +8,7 @@ import 'dirty_kind.dart';
 /// [E] is the error type (e.g. AppFailure, Exception, String, etc.).
 ///
 /// In your app you can define a shorthand like:
-///   // typedef StatefulDataAnyError<T> = StatefulData<T, Object>;
+///   // typedef StatefulDataAnyError &lt;T&gt; = StatefulData &lt;T, Object&gt;;
 ///
 /// The union of subclasses models the full lifecycle:
 /// - Uninitialized  – never loaded
@@ -19,8 +19,9 @@ import 'dirty_kind.dart';
 /// - Updating       – sending updates to backend
 /// - Failure        – last operation failed
 sealed class StatefulData<T, E extends Object> {
-  final T? value;
-  const StatefulData([this.value]);
+  T? get value;
+
+  const StatefulData();
 
 
   /// Collapse the full lifecycle into just two branches:
@@ -135,6 +136,9 @@ sealed class StatefulData<T, E extends Object> {
 /// No attempt to load yet (initial state).
 final class Uninitialized<T, E extends Object> extends StatefulData<T, E> {
   const Uninitialized() : super();
+
+  @override
+  T? get value => null;
 }
 
 /// A load from backend/storage is in progress.
@@ -154,30 +158,39 @@ final class Loading<T, E extends Object> extends StatefulData<T, E> {
     Dirty<T, E>(value: final v, prev: final p) => v ?? p,
     Failure<T, E>(prev: final p) => p,
     _ => previous?.value,
-  },
-        super(previous?.value);
+  },super();
+
+  @override
+  T? get value => prev;
 }
 
 /// The resource exists but is empty (e.g. empty list / no data).
 final class Empty<T, E extends Object> extends StatefulData<T, E> {
   const Empty() : super();
+
+  @override
+  T? get value => null;
 }
 
 /// Successfully loaded value, ready for consumption.
 final class Ready<T, E extends Object> extends StatefulData<T, E> {
-  final T value;
-  const Ready(this.value) : super(value);
+
+  final T _value;
+  const Ready(this._value) : super();
+
+  @override
+  T get value => _value;
 }
 
 /// An update to backend is in progress (PATCH/PUT/POST).
 final class Updating<T, E extends Object> extends StatefulData<T, E> {
-  final T value;
+  final T _value;
   final T? prev;
   final Future<bool>? future;
   final Completer<T>? completer;
 
   Updating(
-      this.value, {
+      this._value, {
         StatefulData<T, E>? previous,
         this.future,
         this.completer,
@@ -188,8 +201,11 @@ final class Updating<T, E extends Object> extends StatefulData<T, E> {
     Dirty<T, E>(value: final v, prev: final p) => v ?? p,
     Failure<T, E>(prev: final p) => p,
     _ => previous?.value,
-  },
-        super(value);
+  },super();
+
+
+  @override
+  T get value => _value;
 }
 
 /// The last operation failed.
@@ -207,8 +223,11 @@ final class Failure<T, E extends Object> extends StatefulData<T, E> {
     Dirty<T, E>(value: final v, prev: final p) => v ?? p,
     Failure<T, E>(prev: final p) => p,
     _ => previous?.value,
-  },
-        super(previous?.value);
+  },super();
+
+
+  @override
+  T? get value => prev;
 }
 
 /// Local edits or cached data that differ from the last confirmed backend state.
@@ -216,10 +235,10 @@ final class Dirty<T, E extends Object> extends StatefulData<T, E> {
   final DateTime? dirtyAt;
   final DirtyKind kind;
   final T? prev;
-  final T value;
+  final T _value;
 
   Dirty(
-      this.value, {
+      this._value, {
         StatefulData<T, E>? previous,
         this.kind = const EditedDirty(),
         this.dirtyAt,
@@ -230,6 +249,9 @@ final class Dirty<T, E extends Object> extends StatefulData<T, E> {
     Dirty<T, E>(value: final v, prev: final p) => v ?? p,
     Failure<T, E>(prev: final p) => p,
     _ => previous?.value,
-  },
-        super(value);
+  },super();
+
+
+  @override
+  T get value => _value;
 }

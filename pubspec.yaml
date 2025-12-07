@@ -1,5 +1,5 @@
 name: stateful_data
-description: "description: "A fully declarative data-lifecycle approach to BLoC-style state management in Flutter."
+description: A fully declarative data-lifecycle approach to BLoC-style state management in Flutter.
 version: 1.0.0
 repository: https://github.com/konstantinvoronov/stateful_data
 issue_tracker: https://github.com/konstantinvoronov/stateful_data/issues
