@@ -288,17 +288,17 @@ class UserDataState extends UserState {
 }
 ```
 
-- Your screen / feature still has its own sealed UserState as State of UI/Controller lifecicle.
+- Your screen / feature still has its own sealed UserState as State of UI/Controller lifecycle.
 - but AppStatefulData<User> covers the data lifecycle (uninitialized → loading → ready/failure/etc.).
 
 ** Without StatefulData, you usually end up defining many separate states — Loading, Cached, Dirty, Updating, Error, etc. — for EACH feature. StatefulData replaces all of that with a single reusable lifecycle type.**
 
-Use a simple switch patterns helper *either* that ignore the full state and only care about whether a value is available.
+Use the simple *either* helper when you only care about whether a value is available, not the full state.
 
 ```dart
 final value = state.user.either(
   (value)    => value,           // we have something
-  (failure)  => throw(StateEror('User not initialized')),            // no value → throw and process error;
+  (failure)  => throw(StateError('User not initialized')),            // no value → throw and process error;
 );
 ```
 
@@ -308,7 +308,7 @@ Use simple widgets `StatefulDataBuilder` or `StatefulDataStreamBuilder`:
 
 ```dart
 
-Widget StatefulDataBuilder<User, AppError>(
+StatefulDataBuilder<User, AppError>(
   data: context.read<UserController>().state.user,
 
   shimmer: () => const UserShimmer(),
@@ -323,7 +323,7 @@ Widget StatefulDataBuilder<User, AppError>(
 );
 ```
 
-Or (if your need more freedom) us Dart 3+ `switch case` on `StatefulData`:
+Or (if your need more freedom) use Dart 3+ `switch case` on `StatefulData`:
 
 ```dart
 typedef AppStatefulData<T> = StatefulData<T, AppError>;
