@@ -1,0 +1,20 @@
+name: stateful_data
+description: "description: "A fully declarative data-lifecycle approach to BLoC-style state management in Flutter."
+version: 1.0.0
+repository: https://github.com/konstantinvoronov/stateful_data
+issue_tracker: https://github.com/konstantinvoronov/stateful_data/issues
+homepage: https://github.com/konstantinvoronov/stateful_data
+
+environment:
+  sdk: ^3.9.2
+  flutter: ">=1.17.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
