@@ -200,6 +200,9 @@ class ValidationError extends AppError {
 class NetworkError extends AppError {
   const NetworkError(String message) : super(message);
 }
+
+/// and every across App we use AppStatefulData<T>
+typedef AppStatefulData<T> = StatefulData<T, AppError>;
 ```
 
 
@@ -232,7 +235,6 @@ Future<AppStatefulData<User>> fetchUser() async {
 ### In Controller / BLoC
 
 Use transitions to move through the lifecycle:
-
 ```dart
 class UserState {
   final AppStatefulData<User> user;
@@ -263,7 +265,34 @@ class UserController extends Cubit<UserState> {
 }
 ```
 
-If you need it in a repository or controller, you can use a switch patterns that ignore the full state and only care about whether a value is available.
+You can use it with state build on sealed classes.
+
+```dart
+
+sealed class UserState {
+  const UserState();
+}
+
+class UserInitial extends UserState {
+const UserInitial();
+}
+
+class UserDataState extends UserState {
+  final AppStatefulData<User> user;
+
+  const UserDataState(this.user);
+
+  UserDataState copyWith({AppStatefulData<User>? user}) =>
+  UserDataState(user ?? this.user);
+}
+```
+
+- Your screen / feature still has its own sealed UserState as State of UI/Controller lifecicle.
+- but AppStatefulData<User> covers the data lifecycle (uninitialized → loading → ready/failure/etc.).
+
+** Without StatefulData, you usually end up defining many separate states — Loading, Cached, Dirty, Updating, Error, etc. — for EACH feature. StatefulData replaces all of that with a single reusable lifecycle type.**
+
+If you need simple access value in a repository or controller, you can use a switch patterns that ignore the full state and only care about whether a value is available.
 
 ```dart
 final value = state.user.either(
