@@ -1,18 +1,31 @@
 # stateful_data
 
-A small Flutter/Dart package that introduces a **declarative lifecycle type** for values in BLoC-style state management.
-Created by **Konstantin Voronov**.
+A small Flutter/Dart package that introduces a declarative data lifecycle type specifically designed as a generic wrapper for a single piece of data fetched asynchronously (for example, a user object, product details, or an API response). It is completely separate from Flutter’s StatefulWidget or BLoC’s general state management.
 
-The library hides a lot of corner-case logic under the hood and gives you a **bullet-proof, readable scaffold** per layer. It promotes:
+Built on vanilla Dart 3’s native sealed classes, it offers a simple, type-safe, exhaustive and intuitive approach using switch-based patterns and small helpers.
 
-- clear error handling,
-- explicit value state transitions,
-- separation of concerns across Clean Architecture layers.
+The library makes a small but extremely powerful add-on to the flutter_bloc package and brings an extensible way to handle data state across the entire app, not just a single bloc. It promotes patterns that hold up in corner cases and encourages writing bulletproof, readable code with a clear Clean Architecture–style separation of concerns.
+
+It promotes:
+
+- a near-zero learning curve with a simple, intuitive API
+- a clear error-handling pipeline
+- explicit value state transitions
+- a clean separation of concerns across Clean Architecture layers
 
 `stateful_data` gives you a single sealed type:
 
 ```dart
+/// StatefulData - declarative lifecycle wrapper for a value of type [T].
+/// and [E] - the error type (e.g. AppFailure, Exception, String, etc.).
+
 StatefulData<T, E>
+
+/// and you can use it
+var StatefulData<String, StateError> name = Ready('New value');
+
+/// and you are set to. 
+
 ```
 
 that replaces Traditional BLoC state patterns like:
@@ -25,14 +38,7 @@ that replaces Traditional BLoC state patterns like:
 - sealed classes where some fields are `null` in some variants and non-null in others
 
 
-```dart
-T? value;
-bool isLoading;
-bool hasError;
-String? errorMessage;
-```
-
-with an explicit lifecycle:
+** StatefulData defines the following states for a single piece of data, each represented by its own concrete StatefulData subclass. **
 
 - `Uninitialized` – nothing loaded yet
 - `Empty` – known to be empty (e.g. empty list)
@@ -45,11 +51,57 @@ with an explicit lifecycle:
 Every value wrapped in `StatefulData` is always in **exactly one** of these states.
 
 
-It’s **just a data type**, so it works with:
+## 🧬 Lifecycle in action
+
+A typical flow for a single field:
+
+```dart
+// Initial state:
+StatefulData<String, StateError> name = const Uninitialized();
+
+// Start loading from backend:
+name = name.toLoading();
+
+// Or: if you already have cached value:
+name = Dirty('John (cached)',kind: const CachedDirty(),).toLoading();
+
+// Got result from backend:
+name = Ready<String, AppError>('John');
+
+// User edits the value locally:
+name = name.toDirty('Jon'); // EditedDirty by default
+
+// Validation fails:
+name = name.toFailure(const StateError('Must be at least 5 characters'),);
+
+// User fixes and we send update:
+name = name.toDirty('Jonathan');
+
+// Mark as “validated but not saved yet”:
+name = name.toDirty('Jonathan',kind: const ValidatedDirty(),);
+
+// Start updating backend:
+name = name.toUpdating('Jonathan');
+
+// Server accepts → mark as ready:
+name = Ready<String, AppError>('Jonathan');
+
+// If a network error happens:
+name = name.toFailure(const StateError('Network error, please try again'),);
+```
+
+---
+
+Unlike other packages that handle data state — such as AsyncValue in Riverpod or form state in Formz — 
+StatefulData combines extreme simplicity and a very “vanilla” Dart approach with a clear separation 
+of concerns and an exhaustive, but not over-engineered, set of states. Not too many, not too abstract.
+
+It’s **just a data type**, so it works with any state management:
 
 - BLoC / Cubit
 - Riverpod
 - ValueNotifier
+
 - any other state management
 
 
@@ -66,27 +118,13 @@ sealed class StatefulData<T, E extends Object> {
     R Function(E? failure) onNoValue,
   );
 
-  // Get best usable value or null (built on top of either)
+  // when you need switch back to nullable world
   T? valueOrNull();
 
-  Loading<T, E> toLoading({
-    Future<bool>? future,
-    Completer<T>? completer,
-  });
-
-  Updating<T, E> toUpdating(
-    T newValue, {
-      Future<bool>? future,
-      Completer<T>? completer,
-    });
-
-  Dirty<T, E> toDirty(
-    T newValue, {
-      DirtyKind kind = const EditedDirty(),
-      DateTime? dirtyAt,
-    });
-
-  Failure<T, E> toFailure(E failure);
+  Loading<T, E>   toLoading({Future<bool>? future, Completer<T>? completer,});
+  Updating<T, E>  toUpdating(T newValue, {Future<bool>? future, Completer<T>? completer,});
+  Dirty<T, E>     toDirty(T newValue, {DirtyKind kind = const EditedDirty(), DateTime? dirtyAt,});
+  Failure<T, E>   toFailure(E failure);
 }
 
 final class Uninitialized<T, E extends Object> extends StatefulData<T, E> { /* ... */ }
@@ -146,57 +184,6 @@ name = name.toDirty('New value', kind: const EditedDirty());
 name = name.toDirty(
   'Valid value',
   kind: const ValidatedDirty(),
-);
-```
-
----
-
-## 🧬 Lifecycle in action
-
-A typical flow for a single field:
-
-```dart
-// Initial state:
-StatefulData<String, AppError> name = const Uninitialized();
-
-// Start loading from backend:
-name = name.toLoading();
-
-// Or: if you already have cached value:
-name = Dirty<String, AppError>(
-  'John (cached)',
-  kind: const CachedDirty(),
-).toLoading();
-
-// Got result from backend:
-name = Ready<String, AppError>('John');
-
-// User edits the value locally:
-name = name.toDirty('Jon'); // EditedDirty by default
-
-// Validation fails:
-name = name.toFailure(
-  const ValidationError('Must be at least 5 characters'),
-);
-
-// User fixes and we send update:
-name = name.toDirty('Jonathan');
-
-// Mark as “validated but not saved yet”:
-name = name.toDirty(
-  'Jonathan',
-  kind: const ValidatedDirty(),
-);
-
-// Start updating backend:
-name = name.toUpdating('Jonathan');
-
-// Server accepts → mark as ready:
-name = Ready<String, AppError>('Jonathan');
-
-// If a network error happens:
-name = name.toFailure(
-  const NetworkError('Network error, please try again'),
 );
 ```
 
@@ -282,12 +269,12 @@ class UserController extends Cubit<UserState> {
 }
 ```
 
-If you want a simple “value vs no value” view for UI flags:
+If you need it in a repository or controller, you can use a switch patterns that ignore the full state and only care about whether a value is available.
 
 ```dart
-final showSkeleton = state.user.either(
-  (value)    => false,           // we have something
-  (failure)  => true,            // no value → show skeleton
+final value = state.user.either(
+  (value)    => value,           // we have something
+  (failure)  => throw(StateEror('User not initialized')),            // no value → throw and process error;
 );
 ```
 
@@ -315,7 +302,9 @@ StatefulDataBuilder<User, AppError>(
 Or (if your need more freedom) `switch` on `StatefulData`:
 
 ```dart
-final userData = context.read<YourController>().state.user;
+typedef AppStatefulData<T> = StatefulData<T, AppError>;
+
+final AppStatefulData<User> userData = context.read<YourController>().state.user;
 
 return switch (userData) {
   Uninitialized<User, AppError>() ||

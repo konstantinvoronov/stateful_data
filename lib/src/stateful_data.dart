@@ -8,7 +8,7 @@ import 'dirty_kind.dart';
 /// [E] is the error type (e.g. AppFailure, Exception, String, etc.).
 ///
 /// In your app you can define a shorthand like:
-///   // typedef StatefulDataAnyError &lt;T&gt; = StatefulData &lt;T, Object&gt;;
+///   // typedef AppStatefulData &lt;T&gt;  StatefulData &lt;T, Object&gt;;
 ///
 /// The union of subclasses models the full lifecycle:
 /// - Uninitialized  – never loaded
@@ -254,4 +254,5 @@ final class Dirty<T, E extends Object> extends StatefulData<T, E> {
 
   @override
   T get value => _value;
+
 }
