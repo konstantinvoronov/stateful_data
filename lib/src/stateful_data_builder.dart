@@ -40,16 +40,16 @@ class StatefulDataBuilder<T, E extends Object> extends StatelessWidget {
   final StatefulData<T, E> data;
   final ShimmerBuilder shimmer;
   final StatefulValueBuilder<T, E> builder;
-  final StatefulFailureBuilder<T, E>? failureBuilder;
-  final Widget Function()? emptyBuilder;
+  final StatefulFailureBuilder<T, E> failureBuilder;
+  final Widget Function() emptyBuilder;
 
   const StatefulDataBuilder({
     super.key,
     required this.data,
     required this.shimmer,
     required this.builder,
-    this.failureBuilder,
-    this.emptyBuilder,
+    required this.failureBuilder,
+    required this.emptyBuilder,
   });
 
   @override
@@ -68,8 +68,7 @@ class StatefulDataBuilder<T, E extends Object> extends StatelessWidget {
           builder(v, false, error: e),
 
     // Failure without usable previous value → dedicated failure UI or nothing
-      Failure<T, E>(prev: final v, failure: final e) =>
-      failureBuilder?.call(v, e) ?? const SizedBox.shrink(),
+      Failure<T, E>(prev: final v, failure: final e) => failureBuilder(v, e),
 
     // Updating → treat as in-progress with latest value
       Updating<T, E>(value: final v) =>
@@ -81,8 +80,7 @@ class StatefulDataBuilder<T, E extends Object> extends StatelessWidget {
           builder(v, false),
 
     // Empty → custom empty UI or nothing
-      Empty<T, E>() =>
-      emptyBuilder?.call() ?? const SizedBox.shrink(),
+      Empty<T, E>() => emptyBuilder(),
     };
   }
 }
@@ -94,16 +92,16 @@ class StatefulDataStreamBuilder<T, E extends Object> extends StatelessWidget {
   final Stream<StatefulData<T, E>> stream;
   final ShimmerBuilder shimmer;
   final StatefulValueBuilder<T, E> builder;
-  final StatefulFailureBuilder<T, E>? failureBuilder;
-  final Widget Function()? emptyBuilder;
+  final StatefulFailureBuilder<T, E> failureBuilder;
+  final Widget Function() emptyBuilder;
 
   const StatefulDataStreamBuilder({
     super.key,
     required this.stream,
     required this.shimmer,
     required this.builder,
-    this.failureBuilder,
-    this.emptyBuilder,
+    required this.failureBuilder,
+    required this.emptyBuilder,
   });
 
   @override
