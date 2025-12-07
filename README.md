@@ -418,7 +418,7 @@ More docs and layer-specific examples (repositories, controllers, UI) will be ad
 ## 🧑‍💻 Author
 
 **Konstantin Voronov**  
-Creator of the **StatefulData declarative data-lifecycle pattern** for Flutter BLoC architectures.  
+Software engineer and ambassador of the StatefulData declarative data-lifecycle pattern in Flutter. 
 Email: `me@konstantinvoronov.com`
 
 ---
