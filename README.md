@@ -293,10 +293,29 @@ final showSkeleton = state.user.either(
 
 ### In UI
 
-Use a `switch` on `StatefulData`:
+Use simple `StatefulDataBuilder` on `StatefulData`:
 
 ```dart
-final userData = context.watch<UserController>().state.user;
+
+StatefulDataBuilder<User, AppError>(
+  data: context.read<UserController>().state.user,
+
+  shimmer: () => const UserShimmer(),
+
+  builder: (user, {inProgress, error}) => UserView(
+    user: user,
+    isRefreshing: inProgress,
+    errorBanner: error,
+  ),
+  emptyBuilder: () => const EmptyUserPlaceholder(),
+  failureBuilder: (error) => ErrorScreen(message: error.message),
+);
+```
+
+Or (if your need more freedom) `switch` on `StatefulData`:
+
+```dart
+final userData = context.read<YourController>().state.user;
 
 return switch (userData) {
   Uninitialized<User, AppError>() ||
@@ -362,7 +381,7 @@ Each value is **self-contained** and explicit about its lifecycle.
 
 ```yaml
 dependencies:
-  stateful_data: ^0.0.1
+  stateful_data: ^1.0.0
 ```
 
 Then:
