@@ -210,7 +210,7 @@ typedef AppStatefulData<T> = StatefulData<T, AppError>;
 
 The pattern is designed to be used consistently across **Repo → Controller/BLoC → UI**.
 
-### In Repository / Data layer
+### In Repository / Infrastructure or Data layer
 
 Return `StatefulData` instead of nullable values or flags:
 
@@ -232,9 +232,10 @@ Future<AppStatefulData<User>> fetchUser() async {
 }
 ```
 
-### In Controller / BLoC
+### In Controller / BLoC / Presentation level
 
 Use transitions to move through the lifecycle:
+
 ```dart
 class UserState {
   final AppStatefulData<User> user;
@@ -292,7 +293,7 @@ class UserDataState extends UserState {
 
 ** Without StatefulData, you usually end up defining many separate states — Loading, Cached, Dirty, Updating, Error, etc. — for EACH feature. StatefulData replaces all of that with a single reusable lifecycle type.**
 
-If you need simple access value in a repository or controller, you can use a switch patterns that ignore the full state and only care about whether a value is available.
+Use a simple switch patterns helper *either* that ignore the full state and only care about whether a value is available.
 
 ```dart
 final value = state.user.either(
@@ -301,13 +302,13 @@ final value = state.user.either(
 );
 ```
 
-### In UI
+### In Widget - UI
 
-Use simple `StatefulDataBuilder` on `StatefulData`:
+Use simple widgets `StatefulDataBuilder` or `StatefulDataStreamBuilder`:
 
 ```dart
 
-StatefulDataBuilder<User, AppError>(
+Widget StatefulDataBuilder<User, AppError>(
   data: context.read<UserController>().state.user,
 
   shimmer: () => const UserShimmer(),
@@ -322,7 +323,7 @@ StatefulDataBuilder<User, AppError>(
 );
 ```
 
-Or (if your need more freedom) `switch` on `StatefulData`:
+Or (if your need more freedom) us Dart 3+ `switch case` on `StatefulData`:
 
 ```dart
 typedef AppStatefulData<T> = StatefulData<T, AppError>;
