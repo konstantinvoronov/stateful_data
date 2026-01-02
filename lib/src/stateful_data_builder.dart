@@ -13,7 +13,6 @@ typedef StatefulValueBuilder<T, E extends Object> = Widget Function(
 /// Called when we are in a failure state and there is no previous value
 /// (or you want a dedicated error UI).
 typedef StatefulFailureBuilder<T, E extends Object> = Widget Function(
-    T? value,
     E error,
     );
 
@@ -67,8 +66,8 @@ class StatefulDataBuilder<T, E extends Object> extends StatelessWidget {
           builder(v, false, error: e),
 
     // Failure without usable previous value → dedicated failure UI or nothing
-      Failure<T, E>(prev: final v, failure: final e) =>
-          failureBuilder(v, e),
+      Failure<T, E>(failure: final e) =>
+          failureBuilder(e),
 
     // Updating → treat as in-progress with latest value
       Updating<T, E>(value: final v) =>

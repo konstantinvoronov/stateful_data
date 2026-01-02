@@ -1,0 +1,17 @@
+name: stateful_data_example
+description: Stateful_data package example project.
+version: 1.0.0
+
+environment:
+  sdk: ^3.9.2
+  flutter: ">=1.17.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  flutter_bloc: ^8.1.0
+  http: ^1.2.0
+  equatable: ^2.0.7
+  stateful_data:
+    path: '../../../'
