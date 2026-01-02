@@ -2,6 +2,15 @@
 
 All notable changes to the **stateful_data** package will be documented in this file.
 
+## 1.0.1 — Examples & Flutter usage helpers
+
+- Added usage examples demonstrating common lifecycle scenarios.
+- Update README with guidance on:
+    - recommended architectural usage patterns
+    - value vs no-value lifecycle semantics
+    - failure & optimistic-update handling
+- Introduced `.statefulBuilder()` sugar extensions for widgets and streams.
+
 ## 1.0.0 — Initial Release
 
 - Introduced the **StatefulData** declarative data-lifecycle pattern.

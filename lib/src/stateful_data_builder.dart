@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:stateful_data/stateful_data.dart';
 
-
 /// Called when we have a value to show.
 /// [inProgress] is true when we are in a loading/updating state but can still show [value].
 /// [error] is provided when we are in a failure state but still have a previous value.
@@ -68,7 +67,8 @@ class StatefulDataBuilder<T, E extends Object> extends StatelessWidget {
           builder(v, false, error: e),
 
     // Failure without usable previous value → dedicated failure UI or nothing
-      Failure<T, E>(prev: final v, failure: final e) => failureBuilder(v, e),
+      Failure<T, E>(prev: final v, failure: final e) =>
+          failureBuilder(v, e),
 
     // Updating → treat as in-progress with latest value
       Updating<T, E>(value: final v) =>
@@ -80,7 +80,8 @@ class StatefulDataBuilder<T, E extends Object> extends StatelessWidget {
           builder(v, false),
 
     // Empty → custom empty UI or nothing
-      Empty<T, E>() => emptyBuilder(),
+      Empty<T, E>() =>
+          emptyBuilder(),
     };
   }
 }
@@ -119,6 +120,52 @@ class StatefulDataStreamBuilder<T, E extends Object> extends StatelessWidget {
           emptyBuilder: emptyBuilder,
         );
       },
+    );
+  }
+}
+
+extension StatefulDataWidgetX<T, E extends Object> on StatefulData<T, E> {
+  /// Convenience wrapper so you can do:
+  ///
+  /// state.statefulDatas.statefulBuilder(
+  ///   shimmer: () => ...,
+  ///   builder: (value, inProgress, {error}) => ...,
+  ///   emptyBuilder: () => ...,
+  /// );
+  Widget statefulBuilder({
+    Key? key,
+    required ShimmerBuilder shimmer,
+    required StatefulValueBuilder<T, E> builder,
+    required StatefulFailureBuilder<T, E> failureBuilder,
+    required Widget Function() emptyBuilder,
+  }) {
+    return StatefulDataBuilder<T, E>(
+      key: key,
+      data: this,
+      shimmer: shimmer,
+      builder: builder,
+      failureBuilder: failureBuilder,
+      emptyBuilder: emptyBuilder,
+    );
+  }
+}
+
+extension StatefulDataStreamWidgetX<T, E extends Object>
+on Stream<StatefulData<T, E>> {
+  Widget statefulBuilder({
+    Key? key,
+    required ShimmerBuilder shimmer,
+    required StatefulValueBuilder<T, E> builder,
+    required StatefulFailureBuilder<T, E> failureBuilder,
+    required Widget Function() emptyBuilder,
+  }) {
+    return StatefulDataStreamBuilder<T, E>(
+      key: key,
+      stream: this,
+      shimmer: shimmer,
+      builder: builder,
+      failureBuilder: failureBuilder,
+      emptyBuilder: emptyBuilder,
     );
   }
 }

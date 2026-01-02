@@ -1,4 +1,4 @@
-# stateful_data – API Reference (v0.0.1)
+# stateful_data – API Reference (v1.0.1)
 
 This document describes the public API surface of the **stateful_data** package as of version **0.0.1**.
 
@@ -6,21 +6,22 @@ The package defines:
 
 - A generic sealed lifecycle type: [`StatefulData<T, E>`](#statefuldatat-e)
 - Concrete lifecycle variants:
-  - [`Uninitialized<T, E>`](#uninitializedt-e)
-  - [`Loading<T, E>`](#loadingt-e)
-  - [`Empty<T, E>`](#emptyt-e)
-  - [`Ready<T, E>`](#readyt-e)
-  - [`Dirty<T, E>`](#dirtyt-e)
-  - [`Updating<T, E>`](#updatingt-e)
-  - [`Failure<T, E>`](#failuret-e)
+    - [`Uninitialized<T, E>`](#uninitializedt-e)
+    - [`Loading<T, E>`](#loadingt-e)
+    - [`Empty<T, E>`](#emptyt-e)
+    - [`Ready<T, E>`](#readyt-e)
+    - [`Dirty<T, E>`](#dirtyt-e)
+    - [`Updating<T, E>`](#updatingt-e)
+    - [`Failure<T, E>`](#failuret-e)
+
 - An extensible marker hierarchy for “dirty” reasons:
-  - [`DirtyKind`](#dirtykind)
-  - [`EditedDirty`](#editeddirty)
-  - [`ValidatedDirty`](#validateddirty)
-  - [`CachedDirty`](#cacheddirty)
+    - [`DirtyKind`](#dirtykind)
+    - [`EditedDirty`](#editeddirty)
+    - [`ValidatedDirty`](#validateddirty)
+    - [`CachedDirty`](#cacheddirty)
+
 - Recommended type aliases (in your app code):
-  - `typedef AppStatefulData<T> = StatefulData<T, AppError>;`
-  - `typedef StatefulDataAnyError<T> = StatefulData<T, Object>;`
+    - `typedef AppStatefulData<T> = StatefulData<T, AppError>;`
 
 ---
 
@@ -35,9 +36,9 @@ sealed class StatefulData<T, E extends Object> {
   /// - "we have a usable value"   -> onValue
   /// - "we do not have a value"   -> onNoValue
   R either<R>(
-    R Function(T value) onValue,
-    R Function(E? failure) onNoValue,
-  );
+      R Function(T value) onValue,
+      R Function(E? failure) onNoValue,
+      );
 
   /// Returns the best available usable value, or null if none.
   ///
@@ -57,17 +58,17 @@ sealed class StatefulData<T, E extends Object> {
 
   /// Transition to [Updating], keeping previous context for optimistic UI.
   Updating<T, E> toUpdating(
-    T newValue, {
-      Future<bool>? future,
-      Completer<T>? completer,
-    });
+      T newValue, {
+        Future<bool>? future,
+        Completer<T>? completer,
+      });
 
   /// Transition to [Dirty], marking this value as locally modified or cached.
   Dirty<T, E> toDirty(
-    T newValue, {
-      DirtyKind kind = const EditedDirty(),
-      DateTime? dirtyAt,
-    });
+      T newValue, {
+        DirtyKind kind = const EditedDirty(),
+        DateTime? dirtyAt,
+      });
 
   /// Transition to [Failure], preserving the best previous value if any.
   Failure<T, E> toFailure(E failure);
@@ -79,8 +80,8 @@ sealed class StatefulData<T, E extends Object> {
 - `T` – the value type (e.g. `User`, `String`, `List<Post>`).
 - `E` – the error type (e.g. `AppError`, `Exception`, `String`).
 - `value` – a convenience field carrying “current” value in some states.
-  - In variants that don’t carry a real value (like `Uninitialized`, `Empty`), `value` is `null`.
-  - In `Ready`, `Dirty`, `Updating` it equals the current `T`.
+    - In variants that don’t carry a real value (like `Uninitialized`, `Empty`), `value` is `null`.
+    - In `Ready`, `Dirty`, `Updating` it equals the current `T`.
 
 The **recommended way** to use this type is through:
 
@@ -120,13 +121,13 @@ final class Loading<T, E extends Object> extends StatefulData<T, E> {
     this.future,
     this.completer,
   })  : prev = switch (previous) {
-          Ready<T, E>(value: final v) => v,
-          Updating<T, E>(value: final v, prev: final p) => v ?? p,
-          Loading<T, E>(prev: final v) => v,
-          Dirty<T, E>(value: final v, prev: final p) => v ?? p,
-          Failure<T, E>(prev: final p) => p,
-          _ => previous?.value,
-        },
+    Ready<T, E>(value: final v) => v,
+    Updating<T, E>(value: final v, prev: final p) => v ?? p,
+    Loading<T, E>(prev: final v) => v,
+    Dirty<T, E>(value: final v, prev: final p) => v ?? p,
+    Failure<T, E>(prev: final p) => p,
+    _ => previous?.value,
+  },
         super(previous?.value);
 }
 ```
@@ -190,18 +191,18 @@ final class Updating<T, E extends Object> extends StatefulData<T, E> {
   final Completer<T>? completer;
 
   Updating(
-    this.value, {
-      StatefulData<T, E>? previous,
-      this.future,
-      this.completer,
-    })  : prev = switch (previous) {
-          Ready<T, E>(value: final v) => v,
-          Updating<T, E>(value: final v, prev: final p) => v ?? p,
-          Loading<T, E>(prev: final v) => v,
-          Dirty<T, E>(value: final v, prev: final p) => v ?? p,
-          Failure<T, E>(prev: final p) => p,
-          _ => previous?.value,
-        },
+      this.value, {
+        StatefulData<T, E>? previous,
+        this.future,
+        this.completer,
+      })  : prev = switch (previous) {
+    Ready<T, E>(value: final v) => v,
+    Updating<T, E>(value: final v, prev: final p) => v ?? p,
+    Loading<T, E>(prev: final v) => v,
+    Dirty<T, E>(value: final v, prev: final p) => v ?? p,
+    Failure<T, E>(prev: final p) => p,
+    _ => previous?.value,
+  },
         super(value);
 }
 ```
@@ -231,16 +232,16 @@ final class Failure<T, E extends Object> extends StatefulData<T, E> {
   final T? prev;
 
   Failure(
-    this.failure, [
-      StatefulData<T, E>? previous,
-    ])  : prev = switch (previous) {
-          Ready<T, E>(value: final v) => v,
-          Updating<T, E>(value: final v) => v,
-          Loading<T, E>(prev: final v) => v,
-          Dirty<T, E>(value: final v, prev: final p) => v ?? p,
-          Failure<T, E>(prev: final p) => p,
-          _ => previous?.value,
-        },
+      this.failure, [
+        StatefulData<T, E>? previous,
+      ])  : prev = switch (previous) {
+    Ready<T, E>(value: final v) => v,
+    Updating<T, E>(value: final v) => v,
+    Loading<T, E>(prev: final v) => v,
+    Dirty<T, E>(value: final v, prev: final p) => v ?? p,
+    Failure<T, E>(prev: final p) => p,
+    _ => previous?.value,
+  },
         super(previous?.value);
 }
 ```
@@ -257,7 +258,7 @@ Typical usage:
 
 ```dart
 name = name.toFailure(
-  ValidationError('Must be at least 5 characters'),
+ValidationError('Must be at least 5 characters'),
 );
 ```
 
@@ -274,18 +275,18 @@ final class Dirty<T, E extends Object> extends StatefulData<T, E> {
   final T value;
 
   Dirty(
-    this.value, {
-      StatefulData<T, E>? previous,
-      this.kind = const EditedDirty(),
-      this.dirtyAt,
-    })  : prev = switch (previous) {
-          Ready<T, E>(value: final v) => v,
-          Updating<T, E>(value: final v, prev: final p) => v ?? p,
-          Loading<T, E>(prev: final v) => v,
-          Dirty<T, E>(value: final v, prev: final p) => v ?? p,
-          Failure<T, E>(prev: final p) => p,
-          _ => previous?.value,
-        },
+      this.value, {
+        StatefulData<T, E>? previous,
+        this.kind = const EditedDirty(),
+        this.dirtyAt,
+      })  : prev = switch (previous) {
+    Ready<T, E>(value: final v) => v,
+    Updating<T, E>(value: final v, prev: final p) => v ?? p,
+    Loading<T, E>(prev: final v) => v,
+    Dirty<T, E>(value: final v, prev: final p) => v ?? p,
+    Failure<T, E>(prev: final p) => p,
+    _ => previous?.value,
+  },
         super(value);
 }
 ```
@@ -308,8 +309,8 @@ name = name.toDirty('New name');
 
 // after validation:
 name = name.toDirty(
-  'Validated name',
-  kind: const ValidatedDirty(),
+'Validated name',
+kind: const ValidatedDirty(),
 );
 ```
 
@@ -368,8 +369,8 @@ class CachedDirty extends DirtyKind {
 ```
 
 - Intended for “cached-first” flows:
-  - Repository returns `Dirty(value, kind: CachedDirty())`.
-  - Controller shows cached value, then decides whether to refresh from backend.
+    - Repository returns `Dirty(value, kind: CachedDirty())`.
+    - Controller shows cached value, then decides whether to refresh from backend.
 
 ---
 
@@ -418,7 +419,7 @@ name = name.toDirty('Jon');
 
 // Validation error:
 name = name.toFailure(
-  const ValidationError('Must be at least 3 characters'),
+const ValidationError('Must be at least 3 characters'),
 );
 ```
 
@@ -427,3 +428,142 @@ You can also build your own helpers on top of `either(...)`, for example a `toEi
 ---
 
 This reference will evolve as the library grows. For now it documents the **core lifecycle types** and their semantics so you can confidently adopt the StatefulData pattern across repositories, controllers/BLoCs, and UI.
+
+---
+
+## UI Projection Helpers & Builder Extensions (since 1.0.1)
+
+The `StatefulData<T, E>` lifecycle model is platform-agnostic and can be used in
+repositories, controllers/BLoCs, services, or backend code.
+
+Starting from **1.0.1**, the package additionally provides an optional
+UI-projection layer that helps map lifecycle states into widget trees in a
+structured and repeatable way.
+
+These helpers do **not** change the lifecycle semantics — they simply provide a
+standard way to render:
+
+- loading
+- empty
+- updating
+- dirty
+- failure (with or without previous value)
+- ready value
+
+in a declarative manner.
+
+---
+
+## StatefulDataBuilder<T, E>
+
+Builds UI from a single `StatefulData<T, E>` value.
+
+```dart
+StatefulDataBuilder<T, E>({
+  required StatefulData<T, E> data,
+  required ShimmerBuilder shimmer,
+  required StatefulValueBuilder<T, E> builder,
+  required StatefulFailureBuilder<T, E> failureBuilder,
+  required Widget Function() emptyBuilder,
+})
+```
+
+### Behaviour mapping
+
+| Lifecycle state               | Builder callback                                |
+|------------------------------|-------------------------------------------------|
+| `Uninitialized`              | `shimmer()`                                     |
+| `Loading(prev == null)`      | `shimmer()`                                     |
+| `Loading(prev != null)`      | `builder(value, true)`                          |
+| `Updating`                   | `builder(value, true)`                          |
+| `Ready`                      | `builder(value, false)`                         |
+| `Dirty`                      | `builder(value, false)`                         |
+| `Failure(prev != null)`      | `builder(value, false, error: failure)`         |
+| `Failure(prev == null)`      | `failureBuilder(prev, failure)`                 |
+| `Empty`                      | `emptyBuilder()`                                |
+
+### Example
+
+```dart
+StatefulDataBuilder<User, AppError>(
+  data: state.user,
+  shimmer: () => const UserShimmer(),
+  builder: (user, inProgress, {error}) =>
+      UserView(user, saving: inProgress, error: error),
+  failureBuilder: (prev, error) =>
+      ErrorPlaceholder(error),
+  emptyBuilder: () =>
+      const EmptyUserState(),
+);
+```
+
+---
+
+## StatefulDataStreamBuilder<T, E>
+
+Same semantics as `StatefulDataBuilder`, but consumes a stream.
+
+```dart
+StatefulDataStreamBuilder<T, E>({
+  required Stream<StatefulData<T, E>> stream,
+  required ShimmerBuilder shimmer,
+  required StatefulValueBuilder<T, E> builder,
+  required StatefulFailureBuilder<T, E> failureBuilder,
+  required Widget Function() emptyBuilder,
+})
+```
+
+Until the first event is emitted, the state is treated as `Uninitialized`.
+
+---
+
+## `.statefulBuilder()` — extension on `StatefulData<T, E>`
+
+Sugar wrapper for the builder widget:
+
+```dart
+state.user.statefulBuilder(
+  shimmer: () => const UserShimmer(),
+  builder: (user, inProgress, {error}) =>
+      UserView(user),
+  failureBuilder: (prev, error) =>
+      ErrorPlaceholder(error),
+  emptyBuilder: () =>
+      const EmptyUserState(),
+);
+```
+
+Functionally equivalent to `StatefulDataBuilder`.
+
+---
+
+## `.statefulBuilder()` — extension on `Stream<StatefulData<T, E>>`
+
+Stream-based sugar equivalent:
+
+```dart
+userStream.statefulBuilder(
+  shimmer: () => const UserShimmer(),
+  builder: (user, inProgress, {error}) =>
+      UserView(user),
+  failureBuilder: (prev, error) =>
+      ErrorPlaceholder(error),
+  emptyBuilder: () =>
+      const EmptyUserState(),
+);
+```
+
+Functionally equivalent to `StatefulDataStreamBuilder`.
+
+---
+
+### Design Intent
+
+These helpers are:
+
+- **optional**
+- layered *on top of* the lifecycle model
+- intended to standardise UI projection of resource lifecycle state
+- consistent with the `value / no-value` interpretation used by `either(...)`
+
+They do not introduce new lifecycle states and do not alter core semantics.
