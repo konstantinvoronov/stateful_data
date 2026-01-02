@@ -1,9 +1,23 @@
+// To try this example in a fresh Flutter app:
+//
+// 1) In pubspec.yaml add:
+//
+// dependencies:
+//   flutter:
+//     sdk: flutter
+//   stateful_data: ^1.0.3
+//   flutter_bloc: ^8.1.0
+//   equatable: ^2.0.7
+//   http: ^1.2.0
+//
+// 2) Run:  flutter pub get
+// 3) Replace lib/main.dart with this file and run:  flutter run
+
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:stateful_data/stateful_data_flutter.dart';
 import 'package:http/http.dart' as http;
-
 
 // stateful_data is a deliberately “vanilla” approach.
 // No generated code, no magic framework behaviour — just a small
