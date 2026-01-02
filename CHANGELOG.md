@@ -2,6 +2,10 @@
 
 All notable changes to the **stateful_data** package will be documented in this file.
 
+## 1.0.3 — Simplified example
+
+- Updated example: moved all separate files into a single `main.dart` for easier copy–paste and experimentation.
+
 ## 1.0.2 — Examples
 
 - Updated example to follow pub.dev convention.
