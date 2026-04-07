@@ -2,6 +2,12 @@
 
 All notable changes to the **stateful_data** package will be documented in this file.
 
+
+## 1.0.5 — Updated StatefulFailureBuilder
+
+- BREAKING: classes Loading and Updating takes Future<T>? future intead of Future<bool>? future
+- BREAKING: Helpers toUpdating and toLoading no accepts Future<T>? future intead of Future<bool>? future
+
 ## 1.0.3 — Simplified example
 
 - Updated example: moved all separate files into a single `main.dart` for easier copy–paste and experimentation.

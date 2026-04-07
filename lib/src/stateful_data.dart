@@ -86,7 +86,7 @@ sealed class StatefulData<T, E extends Object> {
 
   /// Transition to [Loading], carrying the best available previous value.
   Loading<T, E> toLoading({
-    Future<bool>? future,
+    Future<T>? future,
     Completer<T>? completer,
   }) {
     return Loading(
@@ -99,7 +99,7 @@ sealed class StatefulData<T, E extends Object> {
   /// Transition to [Updating], keeping previous context for optimistic UI.
   Updating<T, E> toUpdating(
       T newValue, {
-        Future<bool>? future,
+        Future<T>? future,
         Completer<T>? completer,
       }) {
     return Updating(
@@ -144,7 +144,7 @@ final class Uninitialized<T, E extends Object> extends StatefulData<T, E> {
 /// A load from backend/storage is in progress.
 final class Loading<T, E extends Object> extends StatefulData<T, E> {
   final T? prev;
-  final Future<bool>? future;
+  final Future<T>? future;
   final Completer<T>? completer;
 
   Loading({
@@ -186,7 +186,7 @@ final class Ready<T, E extends Object> extends StatefulData<T, E> {
 final class Updating<T, E extends Object> extends StatefulData<T, E> {
   final T _value;
   final T? prev;
-  final Future<bool>? future;
+  final Future<T>? future;
   final Completer<T>? completer;
 
   Updating(
