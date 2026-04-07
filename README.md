@@ -4,6 +4,17 @@ A small Flutter/Dart package that introduces a declarative data lifecycle type s
 
 Built on vanilla Dart 3’s native sealed classes, it offers a simple, type-safe, exhaustive and intuitive approach using switch-based patterns and small helpers.
 
+
+┌───────────────────┬──────────────────────┬─────────────────────────────┐
+│                   │ Classic BloC         │ stateful_data               │
+├───────────────────┼──────────────────────┼─────────────────────────────┤
+│ Type Safety       │ ✅ Full              │ ✅ Full                     │
+│ Exhaustive Check  │ ✅ (with sealed)     │ ✅ (with switch on data)    │
+│ Boilerplate       │ ❌ High              │ ✅ Low                      │
+│ UI Consistency    │ ❌ Manual            │ ✅ Builder OR Switch        │
+│ Flexibility       │ ❌ One pattern       │ ✅ Multiple patterns        │
+└───────────────────┴──────────────────────┴─────────────────────────────┘
+
 The library makes a small but extremely powerful add-on to the flutter_bloc package and brings an extensible way to handle data state across the entire app, not just a single bloc. It promotes patterns that hold up in corner cases and encourages writing bulletproof, readable code with a clear Clean Architecture–style separation of concerns.
 
 It promotes:
