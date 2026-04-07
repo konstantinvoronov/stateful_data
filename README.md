@@ -132,8 +132,8 @@ sealed class StatefulData<T, E extends Object> {
   // when you need switch back to nullable world
   T? valueOrNull();
 
-  Loading<T, E>   toLoading({Future<bool>? future, Completer<T>? completer,});
-  Updating<T, E>  toUpdating(T newValue, {Future<bool>? future, Completer<T>? completer,});
+  Loading<T, E>   toLoading({Future<T>? future, Completer<T>? completer,});
+  Updating<T, E>  toUpdating(T newValue, {Future<T>? future, Completer<T>? completer,});
   Dirty<T, E>     toDirty(T newValue, {DirtyKind kind = const EditedDirty(), DateTime? dirtyAt,});
   Failure<T, E>   toFailure(E failure);
 }
