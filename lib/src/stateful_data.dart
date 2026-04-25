@@ -84,6 +84,46 @@ sealed class StatefulData<T, E extends Object> {
     );
   }
 
+  /// Returns the best available usable value, active future, or null if none.
+  ///
+  /// Priority:
+  /// - Loading(future)            -> active future
+  /// - Ready / Updating / Dirty   -> current value wrapped in Future.value
+  /// - Failure(prev)              -> previous value wrapped in Future.value
+  /// - Uninitialized / Empty      -> null wrapped in Future.value
+  ///
+  /// This is useful for cache resolution:
+  /// if an item is already loading, callers receive the same in-progress Future
+  /// instead of starting a duplicate request or receiving null.
+  Future<T?> futureValueOrNull() {
+    return switch (this) {
+    // Loading with already available previous value.
+    // For cache usage, probably return value immediately.
+      Loading<T, E>(prev: final T v?) => Future.value(v),
+
+    // Loading without previous value, but with active future.
+      Loading<T, E>(future: final Future<T> future) => future,
+
+    // Updating has a current optimistic/latest value.
+      Updating<T, E>(value: final T v) => Future.value(v),
+
+    // Failure with previous value.
+      Failure<T, E>(prev: final T v?) => Future.value(v),
+
+    // Ready / Dirty have value.
+      Ready<T, E>(value: final T v) ||
+      Dirty<T, E>(value: final T v, kind: _) =>
+          Future.value(v),
+
+    // Empty / Uninitialized / Failure without previous value.
+      Empty<T, E>() ||
+      Uninitialized<T, E>() ||
+      Loading<T, E>(future: null, prev: null) ||
+      Failure<T, E>() =>
+          Future.value(null),
+    };
+  }
+
   /// Transition to [Loading], carrying the best available previous value.
   Loading<T, E> toLoading({
     Future<T>? future,

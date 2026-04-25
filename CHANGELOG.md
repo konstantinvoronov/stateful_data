@@ -3,6 +3,10 @@
 All notable changes to the **stateful_data** package will be documented in this file.
 
 
+## 1.0.6 — Updated StatefulFailureBuilder
+
+- Added futureValueOrNull - This is useful for cache resolution: if an item is already loading, callers receive the same in-progress Future instead of starting a duplicate request or receiving null. 
+
 ## 1.0.5 — Updated StatefulFailureBuilder
 
 - BREAKING: classes Loading and Updating takes Future<T>? future intead of Future<bool>? future
